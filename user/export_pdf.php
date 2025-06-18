@@ -1,52 +1,45 @@
 <?php
 require_once '../config/config.php';
-require_once '../config/auth.php';
 require_once '../includes/functions.php';
 require_once '../vendor/autoload.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-require_login();
-if (!is_admin()) {
+if (!is_user()) {
     header("Location: ../public/login.php");
     exit;
 }
 
-// Ambil parameter filter
-$opd = $_GET['opd'] ?? '';
-$jenis = $_GET['jenis'] ?? '';
+$username = $_SESSION['username'] ?? '';
+$opd = $_SESSION['opd'] ?? 'Tidak diketahui';
 $tahun = $_GET['tahun'] ?? '';
 $semester = $_GET['semester'] ?? '';
+$jenis = $_GET['jenis'] ?? '';
 
+$user_id = $_SESSION['user_id'] ?? 0;
 
-// Query data
-$query = "SELECT i.*, u.opd FROM informasi i JOIN users u ON i.user_id = u.id WHERE 1=1";
-$params = [];
+$query = "SELECT * FROM informasi WHERE user_id = :user_id";
+$params = ['user_id' => $user_id];
 
-if ($opd) {
-    $query .= " AND u.opd LIKE ?";
-    $params[] = "%$opd%";
+if (!empty($tahun)) {
+    $query .= " AND tahun = :tahun";
+    $params['tahun'] = $tahun;
 }
-if ($jenis) {
-    $query .= " AND i.jenis_informasi = ?";
-    $params[] = $jenis;
+if (!empty($semester)) {
+    $query .= " AND semester = :semester";
+    $params['semester'] = $semester;
 }
-if ($tahun) {
-    $query .= " AND i.tahun = ?";
-    $params[] = $tahun;
-}
-if ($semester) {
-    $query .= " AND i.semester = ?";
-    $params[] = $semester;
+if (!empty($jenis)) {
+    $query .= " AND jenis_informasi = :jenis";
+    $params['jenis'] = $jenis;
 }
 
-$query .= " ORDER BY i.uploaded_at DESC";
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $data = $stmt->fetchAll();
 
-// Encode logo ke base64
+// logo base64
 $logo_path = '../assets/images/kopsurat.jpg';
 $logo_base64 = '';
 if (file_exists($logo_path)) {
@@ -73,13 +66,14 @@ $html = '
         <thead>
             <tr>
                 <th>No</th>
-            <th>Jenis</th>
-            <th>Ringkasan Isi Informasi</th>
-            <th>Pejabat/Unit/Satker Yang Menguasai Informasi</th>
-            <th>Penanggung Jawab Pembuatan atau Penerbitan Informasi</th>
-            <th>Tempat dan Waktu Pembuatan</th>
-            <th>Bentuk</th>
-            <th>Jangka Waktu Penyimpanan atau Retensi Arsip</th>
+                <th>Jenis Informasi</th>
+                <th>Judul</th>
+                <th>Ringkasan</th>
+                <th>Pejabat/Unit</th>
+                <th>Penanggung Jawab</th>
+                <th>Tempat/Waktu</th>
+                <th>Bentuk</th>
+                <th>Retensi</th>
             </tr>
         </thead>
         <tbody>';
@@ -88,13 +82,14 @@ $no = 1;
 foreach ($data as $row) {
     $html .= '<tr>
         <td>' . $no++ . '</td>
-            <td>' . htmlspecialchars($row['jenis_informasi']) . '</td>
-            <td>' . htmlspecialchars($row['ringkasan']) . '</td>
-            <td>' . htmlspecialchars($row['pejabat_pengelola']) . '</td>
-            <td>' . htmlspecialchars($row['penanggung_jawab']) . '</td>
-            <td>' . htmlspecialchars($row['tempat_waktu']) . '</td>
-            <td>' . htmlspecialchars($row['bentuk_informasi']) . '</td>
-            <td>' . htmlspecialchars($row['retensi_arsip']) . '</td>
+        <td>' . htmlspecialchars($row['jenis_informasi']) . '</td>
+        <td>' . htmlspecialchars($row['judul_informasi']) . '</td>
+        <td>' . htmlspecialchars($row['ringkasan']) . '</td>
+        <td>' . htmlspecialchars($row['unit']) . '</td>
+        <td>' . htmlspecialchars($row['penanggung_jawab']) . '</td>
+        <td>' . htmlspecialchars($row['waktu']) . '</td>
+        <td>' . htmlspecialchars($row['bentuk']) . '</td>
+        <td>' . htmlspecialchars($row['retensi']) . '</td>
     </tr>';
 }
 
