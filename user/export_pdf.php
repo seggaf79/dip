@@ -85,11 +85,11 @@ foreach ($data as $row) {
         <td>' . htmlspecialchars($row['jenis_informasi']) . '</td>
         <td>' . htmlspecialchars($row['judul_informasi']) . '</td>
         <td>' . htmlspecialchars($row['ringkasan']) . '</td>
-        <td>' . htmlspecialchars($row['unit']) . '</td>
+        <td>' . htmlspecialchars($row['pejabat_pengelola']) . '</td>
         <td>' . htmlspecialchars($row['penanggung_jawab']) . '</td>
-        <td>' . htmlspecialchars($row['waktu']) . '</td>
-        <td>' . htmlspecialchars($row['bentuk']) . '</td>
-        <td>' . htmlspecialchars($row['retensi']) . '</td>
+        <td>' . htmlspecialchars($row['tempat_waktu']) . '</td>
+        <td>' . htmlspecialchars($row['bentuk_informasi']) . '</td>
+        <td>' . htmlspecialchars($row['retensi_arsip']) . '</td>
     </tr>';
 }
 

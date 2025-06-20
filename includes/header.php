@@ -18,4 +18,3 @@
         Selamat Datang, <b><?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Tamu' ?></b>
     </div>
 </header>
-</body>
